@@ -2,6 +2,17 @@
 
 "Hội Làng Tết Online" là khung ý tưởng cho trải nghiệm lễ hội đầu năm với 3 mini-game, hệ thống lì xì, và vòng lặp viral.
 
+## Chạy dự án (Three.js)
+
+Yêu cầu: Node.js 18+.
+
+```bash
+npm install
+npm run dev
+```
+
+Mở trình duyệt tại địa chỉ hiển thị trong terminal (mặc định http://localhost:5173).
+
 ## Cấu trúc thư mục đề xuất
 
 ```

@@ -94,18 +94,122 @@ const velocity = new THREE.Vector3();
 const direction = new THREE.Vector3();
 
 window.addEventListener("keydown", (event) => {
-  if (event.code === "KeyW") movement.forward = true;
-  if (event.code === "KeyS") movement.backward = true;
+  if (event.code === "KeyW") movement.backward = true;
+  if (event.code === "KeyS") movement.forward = true;
   if (event.code === "KeyA") movement.left = true;
   if (event.code === "KeyD") movement.right = true;
 });
 
 window.addEventListener("keyup", (event) => {
-  if (event.code === "KeyW") movement.forward = false;
-  if (event.code === "KeyS") movement.backward = false;
+  if (event.code === "KeyW") movement.backward = false;
+  if (event.code === "KeyS") movement.forward = false;
   if (event.code === "KeyA") movement.left = false;
   if (event.code === "KeyD") movement.right = false;
 });
+
+const stalls = new THREE.Group();
+const stallBaseGeometry = new THREE.BoxGeometry(6, 2.4, 4);
+const stallRoofGeometry = new THREE.ConeGeometry(3.8, 1.6, 4);
+const stallCounterGeometry = new THREE.BoxGeometry(5, 1, 1.2);
+const stallPostGeometry = new THREE.CylinderGeometry(0.15, 0.15, 2.6, 12);
+const stallBaseMaterial = new THREE.MeshStandardMaterial({ color: 0x3f6b5d });
+const stallRoofMaterial = new THREE.MeshStandardMaterial({ color: 0xf3c343 });
+const stallCounterMaterial = new THREE.MeshStandardMaterial({ color: 0x8b5a2b });
+const stallPostMaterial = new THREE.MeshStandardMaterial({ color: 0x6e3d1b });
+
+const gameStallMaterial = new THREE.MeshStandardMaterial({ color: 0x6a4fa3 });
+const gameRoofMaterial = new THREE.MeshStandardMaterial({ color: 0xf26d4f });
+const gameSignMaterial = new THREE.MeshStandardMaterial({
+  color: 0xfff1d6,
+  emissive: 0xf3c343,
+  emissiveIntensity: 0.4
+});
+
+function createStall(
+  position: THREE.Vector3,
+  rotationY: number,
+  isGame: boolean
+) {
+  const stall = new THREE.Group();
+
+  const base = new THREE.Mesh(
+    stallBaseGeometry,
+    isGame ? gameStallMaterial : stallBaseMaterial
+  );
+  base.position.y = 1.2;
+
+  const roof = new THREE.Mesh(
+    stallRoofGeometry,
+    isGame ? gameRoofMaterial : stallRoofMaterial
+  );
+  roof.position.y = 3.2;
+  roof.rotation.y = Math.PI / 4;
+
+  const counter = new THREE.Mesh(stallCounterGeometry, stallCounterMaterial);
+  counter.position.set(0, 1.1, 2.1);
+
+  const posts = [
+    new THREE.Vector3(-2.6, 1.3, -1.6),
+    new THREE.Vector3(2.6, 1.3, -1.6),
+    new THREE.Vector3(-2.6, 1.3, 1.6),
+    new THREE.Vector3(2.6, 1.3, 1.6)
+  ].map((offset) => {
+    const post = new THREE.Mesh(stallPostGeometry, stallPostMaterial);
+    post.position.copy(offset);
+    return post;
+  });
+
+  const sign = new THREE.Mesh(
+    new THREE.BoxGeometry(3.5, 0.8, 0.3),
+    isGame ? gameSignMaterial : stallRoofMaterial
+  );
+  sign.position.set(0, 3.3, 2);
+
+  stall.add(base, roof, counter, sign, ...posts);
+  stall.position.copy(position);
+  stall.rotation.y = rotationY;
+  return stall;
+}
+
+stalls.add(
+  createStall(new THREE.Vector3(-16, 0, -10), Math.PI / 6, false),
+  createStall(new THREE.Vector3(-8, 0, -18), -Math.PI / 10, false),
+  createStall(new THREE.Vector3(8, 0, -18), Math.PI / 12, false),
+  createStall(new THREE.Vector3(16, 0, -10), -Math.PI / 8, false),
+  createStall(new THREE.Vector3(-14, 0, 6), Math.PI / 4, true),
+  createStall(new THREE.Vector3(0, 0, 10), 0, true),
+  createStall(new THREE.Vector3(14, 0, 6), -Math.PI / 4, true)
+);
+scene.add(stalls);
+
+const gameProps = new THREE.Group();
+const ringMaterial = new THREE.MeshStandardMaterial({ color: 0x5bc0be });
+for (let i = 0; i < 6; i += 1) {
+  const ring = new THREE.Mesh(
+    new THREE.TorusGeometry(0.6, 0.15, 12, 24),
+    ringMaterial
+  );
+  ring.position.set(-14 + i * 1.1, 1.8, 6.8);
+  ring.rotation.x = Math.PI / 2;
+  gameProps.add(ring);
+}
+
+const dartBoard = new THREE.Mesh(
+  new THREE.CylinderGeometry(1.4, 1.4, 0.3, 20),
+  new THREE.MeshStandardMaterial({ color: 0xb7332b })
+);
+dartBoard.position.set(0, 2.2, 11.5);
+dartBoard.rotation.x = Math.PI / 2;
+gameProps.add(dartBoard);
+
+const prizeTable = new THREE.Mesh(
+  new THREE.BoxGeometry(4.5, 0.6, 2),
+  new THREE.MeshStandardMaterial({ color: 0x2f8f83 })
+);
+prizeTable.position.set(14, 1.2, 6.8);
+gameProps.add(prizeTable);
+
+scene.add(gameProps);
 
 let isDragging = false;
 let previousPointer = { x: 0, y: 0 };

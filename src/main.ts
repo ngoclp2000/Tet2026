@@ -21,7 +21,8 @@ const camera = new THREE.PerspectiveCamera(
   0.1,
   200
 );
-camera.position.set(0, 6, 14);
+camera.position.set(0, 1.6, 32);
+camera.rotation.set(0, Math.PI, 0);
 
 const ambient = new THREE.AmbientLight(0xffffff, 0.6);
 scene.add(ambient);
@@ -32,11 +33,35 @@ sun.castShadow = true;
 scene.add(sun);
 
 const ground = new THREE.Mesh(
-  new THREE.PlaneGeometry(120, 120),
-  new THREE.MeshStandardMaterial({ color: 0x1c2a44 })
+  new THREE.PlaneGeometry(140, 140),
+  new THREE.MeshStandardMaterial({ color: 0x18263c })
 );
 ground.rotation.x = -Math.PI / 2;
 scene.add(ground);
+
+const walkway = new THREE.Mesh(
+  new THREE.PlaneGeometry(20, 110),
+  new THREE.MeshStandardMaterial({ color: 0x2f3f5f })
+);
+walkway.rotation.x = -Math.PI / 2;
+walkway.position.z = -10;
+scene.add(walkway);
+
+const sidePathLeft = new THREE.Mesh(
+  new THREE.PlaneGeometry(24, 90),
+  new THREE.MeshStandardMaterial({ color: 0x22324d })
+);
+sidePathLeft.rotation.x = -Math.PI / 2;
+sidePathLeft.position.set(-26, 0.01, -12);
+scene.add(sidePathLeft);
+
+const sidePathRight = new THREE.Mesh(
+  new THREE.PlaneGeometry(24, 90),
+  new THREE.MeshStandardMaterial({ color: 0x22324d })
+);
+sidePathRight.rotation.x = -Math.PI / 2;
+sidePathRight.position.set(26, 0.01, -12);
+scene.add(sidePathRight);
 
 const gate = new THREE.Group();
 const pillarGeometry = new THREE.BoxGeometry(1.2, 6, 1.2);
@@ -52,20 +77,21 @@ const beam = new THREE.Mesh(beamGeometry, beamMaterial);
 beam.position.set(0, 6.2, 0);
 
 gate.add(leftPillar, rightPillar, beam);
+gate.position.set(0, 0, 30);
 scene.add(gate);
 
 const drum = new THREE.Mesh(
   new THREE.CylinderGeometry(1.6, 1.6, 2.2, 32),
   new THREE.MeshStandardMaterial({ color: 0xb5523c })
 );
-drum.position.set(-6, 1.2, -2);
+drum.position.set(-10, 1.2, 18);
 scene.add(drum);
 
 const goat = new THREE.Mesh(
   new THREE.SphereGeometry(1.3, 32, 32),
   new THREE.MeshStandardMaterial({ color: 0xf0f0f0 })
 );
-goat.position.set(5.2, 1.5, -4);
+goat.position.set(10, 1.5, 16);
 scene.add(goat);
 
 const lanternGeometry = new THREE.SphereGeometry(0.45, 16, 16);
@@ -76,12 +102,36 @@ const lanternMaterial = new THREE.MeshStandardMaterial({
 });
 
 const lanterns = new THREE.Group();
-for (let i = 0; i < 8; i += 1) {
+for (let i = 0; i < 10; i += 1) {
   const lantern = new THREE.Mesh(lanternGeometry, lanternMaterial);
-  lantern.position.set(-6 + i * 1.7, 4.8, -6);
+  lantern.position.set(-7.5 + i * 1.7, 4.8, 24);
   lanterns.add(lantern);
 }
 scene.add(lanterns);
+
+const mapBoard = new THREE.Group();
+const mapStand = new THREE.Mesh(
+  new THREE.CylinderGeometry(0.25, 0.25, 3.6, 16),
+  new THREE.MeshStandardMaterial({ color: 0x6b4b2a })
+);
+mapStand.position.set(0, 1.8, 24);
+const mapPanel = new THREE.Mesh(
+  new THREE.BoxGeometry(6, 3.4, 0.3),
+  new THREE.MeshStandardMaterial({ color: 0xf8f1dc })
+);
+mapPanel.position.set(0, 3.3, 22.7);
+const mapLegendLeft = new THREE.Mesh(
+  new THREE.BoxGeometry(2.4, 1.2, 0.05),
+  new THREE.MeshStandardMaterial({ color: 0x3f6b5d })
+);
+mapLegendLeft.position.set(-1.6, 3.6, 22.55);
+const mapLegendRight = new THREE.Mesh(
+  new THREE.BoxGeometry(2.4, 1.2, 0.05),
+  new THREE.MeshStandardMaterial({ color: 0x6a4fa3 })
+);
+mapLegendRight.position.set(1.6, 3.6, 22.55);
+mapBoard.add(mapStand, mapPanel, mapLegendLeft, mapLegendRight);
+scene.add(mapBoard);
 
 const movement = {
   forward: false,
@@ -94,8 +144,8 @@ const velocity = new THREE.Vector3();
 const direction = new THREE.Vector3();
 
 window.addEventListener("keydown", (event) => {
-  if (event.code === "KeyW") movement.backward = true;
-  if (event.code === "KeyS") movement.forward = true;
+  if (event.code === "KeyW") movement.forward = true;
+  if (event.code === "KeyS") movement.backward = true;
   if (event.code === "KeyA") movement.left = true;
   if (event.code === "KeyD") movement.right = true;
 });
@@ -172,13 +222,15 @@ function createStall(
 }
 
 stalls.add(
-  createStall(new THREE.Vector3(-16, 0, -10), Math.PI / 6, false),
-  createStall(new THREE.Vector3(-8, 0, -18), -Math.PI / 10, false),
-  createStall(new THREE.Vector3(8, 0, -18), Math.PI / 12, false),
-  createStall(new THREE.Vector3(16, 0, -10), -Math.PI / 8, false),
-  createStall(new THREE.Vector3(-14, 0, 6), Math.PI / 4, true),
-  createStall(new THREE.Vector3(0, 0, 10), 0, true),
-  createStall(new THREE.Vector3(14, 0, 6), -Math.PI / 4, true)
+  createStall(new THREE.Vector3(-24, 0, 8), Math.PI / 7, false),
+  createStall(new THREE.Vector3(-30, 0, -6), Math.PI / 10, false),
+  createStall(new THREE.Vector3(-24, 0, -20), Math.PI / 10, false),
+  createStall(new THREE.Vector3(24, 0, 8), -Math.PI / 7, false),
+  createStall(new THREE.Vector3(30, 0, -6), -Math.PI / 10, false),
+  createStall(new THREE.Vector3(24, 0, -20), -Math.PI / 10, false),
+  createStall(new THREE.Vector3(-10, 0, -28), Math.PI / 12, true),
+  createStall(new THREE.Vector3(0, 0, -28), 0, true),
+  createStall(new THREE.Vector3(10, 0, -28), -Math.PI / 12, true)
 );
 scene.add(stalls);
 
@@ -189,7 +241,7 @@ for (let i = 0; i < 6; i += 1) {
     new THREE.TorusGeometry(0.6, 0.15, 12, 24),
     ringMaterial
   );
-  ring.position.set(-14 + i * 1.1, 1.8, 6.8);
+  ring.position.set(-12 + i * 1.1, 1.8, -26);
   ring.rotation.x = Math.PI / 2;
   gameProps.add(ring);
 }
@@ -198,7 +250,7 @@ const dartBoard = new THREE.Mesh(
   new THREE.CylinderGeometry(1.4, 1.4, 0.3, 20),
   new THREE.MeshStandardMaterial({ color: 0xb7332b })
 );
-dartBoard.position.set(0, 2.2, 11.5);
+dartBoard.position.set(0, 2.2, -32);
 dartBoard.rotation.x = Math.PI / 2;
 gameProps.add(dartBoard);
 
@@ -206,10 +258,24 @@ const prizeTable = new THREE.Mesh(
   new THREE.BoxGeometry(4.5, 0.6, 2),
   new THREE.MeshStandardMaterial({ color: 0x2f8f83 })
 );
-prizeTable.position.set(14, 1.2, 6.8);
+prizeTable.position.set(12, 1.2, -26);
 gameProps.add(prizeTable);
 
 scene.add(gameProps);
+
+const zoneSigns = new THREE.Group();
+const signPostGeometry = new THREE.CylinderGeometry(0.18, 0.18, 3.2, 12);
+const signPanelGeometry = new THREE.BoxGeometry(4.2, 1.4, 0.4);
+const foodSign = new THREE.Mesh(signPanelGeometry, stallRoofMaterial);
+const foodPost = new THREE.Mesh(signPostGeometry, stallPostMaterial);
+foodSign.position.set(-30, 3.1, 14);
+foodPost.position.set(-30, 1.6, 14);
+const gameSign = new THREE.Mesh(signPanelGeometry, gameRoofMaterial);
+const gamePost = new THREE.Mesh(signPostGeometry, stallPostMaterial);
+gameSign.position.set(0, 3.1, -36);
+gamePost.position.set(0, 1.6, -36);
+zoneSigns.add(foodSign, foodPost, gameSign, gamePost);
+scene.add(zoneSigns);
 
 let isDragging = false;
 let previousPointer = { x: 0, y: 0 };
@@ -226,12 +292,9 @@ canvas.addEventListener("pointerup", () => {
 canvas.addEventListener("pointermove", (event) => {
   if (!isDragging) return;
   const deltaX = event.clientX - previousPointer.x;
-  const deltaY = event.clientY - previousPointer.y;
   previousPointer = { x: event.clientX, y: event.clientY };
 
   camera.rotation.y -= deltaX * 0.003;
-  camera.rotation.x -= deltaY * 0.003;
-  camera.rotation.x = THREE.MathUtils.clamp(camera.rotation.x, -0.6, 0.6);
 });
 
 function onResize() {
@@ -259,6 +322,9 @@ function animate() {
 
   camera.position.addScaledVector(forward, velocity.z * 0.2);
   camera.position.addScaledVector(right, velocity.x * 0.2);
+  camera.position.y = 1.6;
+  camera.position.x = THREE.MathUtils.clamp(camera.position.x, -40, 40);
+  camera.position.z = THREE.MathUtils.clamp(camera.position.z, -50, 34);
 
   lanterns.rotation.y += 0.002;
   goat.position.y = 1.5 + Math.sin(Date.now() * 0.002) * 0.1;
